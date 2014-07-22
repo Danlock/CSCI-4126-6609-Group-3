@@ -104,111 +104,6 @@ Mo Tawakol
 
     });
 
----------------------------------
-
-
-
-    require 'Slim/Slim.php';
-    \Slim\Slim::registerAutoloader();
-
-    $app = new \Slim\Slim();
-
-
-    DEFINE ('DB_USER', 'greenhouse');
-    DEFINE ('DB_PASSWORD', 'oG9gk=yk7DMDUxFJ');
-    DEFINE ('DB_HOST', 'localhost');
-    DEFINE ('DB_NAME', 'greenhouse');
-    DEFINE ('TABLENAME','data');
-    DEFINE ('USAGE_FILE','usage.txt');
-    // Supporting functions.
-    function _connection(){
-        $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
-          OR die ('Could not connect to MySQL: ' . mysql_connect_error());
-        $db = @mysql_select_db(DB_NAME,$dbc);
-        mysql_set_charset('utf8',$dbc);
-        return $db;
-        
-    }
-
-    $app->get('/',function () {
-        //Connects to the mySQL database
-        if(!_connection()) {
-        echo "<h1>Can not connect to mySQL!</h1>";  
-    }
-
-        else {
-        echo "<h1>Database connected</h1>";
-        echo "<h2>Database usage</h2>";
-        $usagefile = file_get_contents(USAGE_FILE);
-        if($usagefile) {
-            echo $usagefile;
-        }
-    }
-        
-        //$col = "name";
-        //$q = "SELECT * from ".TABLENAME;
-        //$r = mysql_query($q,$dbc);
-
-        //while ($row = mysql_fetch_array($r))
-        //{
-          //  $arr[] = $row;
-          //  printf("ID: %s  Name: %s", $row[0], $row[1]);
-       // }
-
-    });
-
-    // return all sensors data
-    $app->get('/sensors',function() {
-    echo 'sensors: sensor';    
-    });
-    
-    // get the sensor data by its id
-    $app->get('/sensors/:sensor_id/',function($sensor_id){
-        echo "sensor:$sensor_id";
-    });
-
-    // return the data during a period of time.
-    $app->get('/sensor_data/:sensor_id/:start_time/:end_time',function($sensor_id,$start_time,$end_time){
-    echo "sensor:$sensor_id,time:$start_time-$end_time";
-    });
-    
-    // post a sensor's data. Create a sensor data table and store the sensor data in to the database.
-    $app->post('/sensors/:sensor_id/',function($sensor_id) use($app){
-        $data = $app->request->getBody();
-    echo $data;
-    });
-    
-    // add an item in to the data table.
-    $app->post('/sensor_data/:sensor_id/',function($sensor_id) use($app){
-    $data = $app->request->getBody();
-        echo $data;
-    });
-
-    // get current the data
-    $app->get('/sensor_data/:sensor_id/',function($sensor_id) {
-        echo 'last stored sensor data';
-    });
-
-    // get the power
-    $app->get('/power/:start_time/:end_time',function($start_time,$end_time) {
-        echo $start_time."-".$end_time;
-    });
-    
-    
-    $app->get('/power',function() {
-        echo 'last stored power data';
-    });
-    
-    
-    $app->post('/power',function() use($app){
-        $data = $app->request->getBody();
-        echo $data;
-    });
-
-    $app->run();
-
-?>
-
 -------------------------------------------
 */
 
@@ -222,11 +117,12 @@ Mo Tawakol
     DEFINE ('DB_PASSWORD', 'oG9gk=yk7DMDUxFJ');
     DEFINE ('DB_HOST', 'localhost');
     DEFINE ('DB_NAME', 'test');
-    DEFINE ('TABLENAME','data');
-
+    //DEFINE ('TABLENAME','data');
+    //Using tablenames as defined in the Group 6 Database Schema defined in their Implemenation
 
     //Using optional variable accepts /sensor call and /sensor/1 call
-    $app->get('/sensor(/:sensor_id)' ,function ($sensor_id = NULL) {
+    //Gets data from sensorData table or one specific sensor
+    $app->get('/sensordata(/:sensor_id)' ,function ($sensor_id = NULL) {
         //Connects to the mySQL database
         $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
         OR die ('Could not connect to MySQL: ' . mysql_connect_error());
@@ -255,20 +151,160 @@ Mo Tawakol
         }
     });
 
-    $app->post('/post', 'post');
-    $app->put('/put', 'update');
-    $app->delete('/delete', 'delete');
-    
+    //gets entire powerProduction table in the database
+     $app->get('/powerproduction' ,function () {
+            //Connects to the mySQL database
+            $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
+            OR die ('Could not connect to MySQL: ' . mysql_connect_error());
+            $db = @mysql_select_db(DB_NAME,$dbc);
+            mysql_set_charset('utf8',$dbc);
 
-    function post() {
-        echo "POST";
-    }
-    function put() {
-        echo "pit"; 
-    }
-    function delete() {
-        echo "delete";
-    }
+            //pulls all info from sensorData table
+
+            $q = "SELECT * from powerProduction";
+            $r = mysql_query($q,$dbc);
+            while ($row = mysql_fetch_array($r))
+            {
+                $arr[] = $row;
+            }
+            return json_encode($arr);
+
+        });
+
+    //gets entire sensor_ambient table in the database
+     $app->get('/sensor_ambient' ,function () {
+            //Connects to the mySQL database
+            $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
+            OR die ('Could not connect to MySQL: ' . mysql_connect_error());
+            $db = @mysql_select_db(DB_NAME,$dbc);
+            mysql_set_charset('utf8',$dbc);
+
+            //pulls all info from sensorData table
+
+            $q = "SELECT * from sensor_ambient";
+            $r = mysql_query($q,$dbc);
+            while ($row = mysql_fetch_array($r))
+            {
+                $arr[] = $row;
+            }
+            return json_encode($arr);
+
+        });
+
+     $app->get('/sensor_soil' ,function () {
+            //Connects to the mySQL database
+            $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
+            OR die ('Could not connect to MySQL: ' . mysql_connect_error());
+            $db = @mysql_select_db(DB_NAME,$dbc);
+            mysql_set_charset('utf8',$dbc);
+
+            //pulls all info from sensorData table
+
+            $q = "SELECT * from sensor_soil";
+            $r = mysql_query($q,$dbc);
+            while ($row = mysql_fetch_array($r))
+            {
+                $arr[] = $row;
+            }
+            return json_encode($arr);
+
+        });
+
+     $app->get('/expertise' ,function () {
+            //Connects to the mySQL database
+            $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
+            OR die ('Could not connect to MySQL: ' . mysql_connect_error());
+            $db = @mysql_select_db(DB_NAME,$dbc);
+            mysql_set_charset('utf8',$dbc);
+
+            //pulls all info from sensorData table
+
+            $q = "SELECT * from expertise";
+            $r = mysql_query($q,$dbc);
+            while ($row = mysql_fetch_array($r))
+            {
+                $arr[] = $row;
+            }
+            return json_encode($arr);
+
+        });
+
+     $app->get('/tasks' ,function () {
+            //Connects to the mySQL database
+            $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
+            OR die ('Could not connect to MySQL: ' . mysql_connect_error());
+            $db = @mysql_select_db(DB_NAME,$dbc);
+            mysql_set_charset('utf8',$dbc);
+
+            //pulls all info from sensorData table
+
+            $q = "SELECT * from tasks";
+            $r = mysql_query($q,$dbc);
+            while ($row = mysql_fetch_array($r))
+            {
+                $arr[] = $row;
+            }
+            return json_encode($arr);
+
+        });
+
+     $app->get('/tbluserdetails' ,function () {
+            //Connects to the mySQL database
+            $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
+            OR die ('Could not connect to MySQL: ' . mysql_connect_error());
+            $db = @mysql_select_db(DB_NAME,$dbc);
+            mysql_set_charset('utf8',$dbc);
+
+            //pulls all info from sensorData table
+
+            $q = "SELECT * from tbluserdetails";
+            $r = mysql_query($q,$dbc);
+            while ($row = mysql_fetch_array($r))
+            {
+                $arr[] = $row;
+            }
+            return json_encode($arr);
+
+        });
+
+     $app->get('/userexpertise' ,function () {
+            //Connects to the mySQL database
+            $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
+            OR die ('Could not connect to MySQL: ' . mysql_connect_error());
+            $db = @mysql_select_db(DB_NAME,$dbc);
+            mysql_set_charset('utf8',$dbc);
+
+            //pulls all info from sensorData table
+
+            $q = "SELECT * from userexpertise";
+            $r = mysql_query($q,$dbc);
+            while ($row = mysql_fetch_array($r))
+            {
+                $arr[] = $row;
+            }
+            return json_encode($arr);
+
+        });
+
+     $app->get('/userallocation' ,function () {
+            //Connects to the mySQL database
+            $dbc = @mysql_connect (DB_HOST, DB_USER,DB_PASSWORD)
+            OR die ('Could not connect to MySQL: ' . mysql_connect_error());
+            $db = @mysql_select_db(DB_NAME,$dbc);
+            mysql_set_charset('utf8',$dbc);
+
+            //pulls all info from sensorData table
+
+            $q = "SELECT * from userAllocation";
+            $r = mysql_query($q,$dbc);
+            while ($row = mysql_fetch_array($r))
+            {
+                $arr[] = $row;
+            }
+            return json_encode($arr);
+
+        });
+
 
     $app->run();
 ?>
